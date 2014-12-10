@@ -4,7 +4,7 @@
  * @author    Nazar Mokrynskyi <nazar@mokrynskyi.com>
  * @copyright Copyright (c) 2014, Nazar Mokrynskyi
  * @license   MIT License, see license.txt
- * @version   1.0.1
+ * @version   1.0.2
  */
 /**
  * @param string $url
@@ -43,7 +43,7 @@ function find_and_download ($spotify_id, $artist, $title, $duration, $access_tok
 	 */
 	$q      = urlencode("$artist - $title");
 	$result = json_decode(
-		file_get_contents("https://api.vk.com/method/audio.search?q=$q&count=10&&access_token=$access_token"),
+		file_get_contents("https://api.vk.com/method/audio.search?q=$q&count=20&&access_token=$access_token"),
 		true
 	);
 	/**
@@ -72,10 +72,12 @@ function find_and_download ($spotify_id, $artist, $title, $duration, $access_tok
 	 * Normalize found tracks and calculate file size
 	 */
 	foreach ($result as &$r) {
-		$r = [
-			'title'              => trim($r['title']),
-			'title_levenshtein'  => levenshtein(trim($r['title']), $title),
-			'artist'             => trim($r['artist']),
+		$r['title']  = decode_special_chars(trim($r['title']));
+		$r['artist'] = decode_special_chars(trim($r['artist']));
+		$r           = [
+			'title'              => $r['title'],
+			'title_levenshtein'  => levenshtein($r['title'], $title),
+			'artist'             => $r['artist'],
 			'artist_levenshtein' => levenshtein($r['artist'], $artist),
 			'size'               => get_file_size($r['url']),
 			'url'                => $r['url'],

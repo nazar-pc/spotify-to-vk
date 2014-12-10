@@ -4,7 +4,7 @@
  * @author    Nazar Mokrynskyi <nazar@mokrynskyi.com>
  * @copyright Copyright (c) 2014, Nazar Mokrynskyi
  * @license   MIT License, see license.txt
- * @version   1.0.0
+ * @version   1.0.1
  */
 /**
  * @param string $url
@@ -16,6 +16,19 @@ function get_file_size ($url) {
 }
 
 /**
+ * @param string $string
+ *
+ * @return string
+ */
+function decode_special_chars ($string) {
+	$string = preg_replace_callback("/(&#x[0-9]+;)/", function ($m) {
+		return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES");
+	}, $string);
+	$string = html_entity_decode($string);
+	return $string;
+}
+
+/**
  * @param string $spotify_id
  * @param string $artist
  * @param string $title
@@ -23,8 +36,8 @@ function get_file_size ($url) {
  * @param string $access_token
  */
 function find_and_download ($spotify_id, $artist, $title, $duration, $access_token) {
-	$artist = trim($artist);
-	$title  = trim($title);
+	$artist = decode_special_chars(trim($artist));
+	$title  = decode_special_chars(trim($title));
 	/**
 	 * API request
 	 */
@@ -53,6 +66,7 @@ function find_and_download ($spotify_id, $artist, $title, $duration, $access_tok
 	if (!$result) {
 		file_put_contents(__DIR__.'/spotify_fail.csv', "$spotify_id;$artist - $title;$duration\n", FILE_APPEND);
 		echo "Failed: $artist - $title\n";
+		return;
 	}
 	/**
 	 * Normalize found tracks and calculate file size

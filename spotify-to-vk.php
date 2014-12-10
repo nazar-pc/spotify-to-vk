@@ -4,7 +4,7 @@
  * @author    Nazar Mokrynskyi <nazar@mokrynskyi.com>
  * @copyright Copyright (c) 2014, Nazar Mokrynskyi
  * @license   MIT License, see license.txt
- * @version   1.0.2
+ * @version   1.0.3
  */
 /**
  * @param string $url
@@ -110,7 +110,7 @@ function find_and_download ($spotify_id, $artist, $title, $duration, $access_tok
 	}
 	$found = $result[0];
 	unset($result);
-	file_put_contents(__DIR__."/spotify/$artist - $title.mp3", file_get_contents($found['url']));
+	file_put_contents(__DIR__.'/spotify/'.str_replace('/', '|', "$artist - $title.mp3"), file_get_contents($found['url']));
 	file_put_contents(__DIR__.'/spotify_success.csv', "$spotify_id;$artist - $title;$duration;$found[artist] - $found[title];$found[duration]\n", FILE_APPEND);
 	echo "Succeed: $artist - $title\n";
 	echo "Actually downloaded: $found[artist] - $found[title]\n";

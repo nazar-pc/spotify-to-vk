@@ -134,15 +134,10 @@ foreach ($spotify_ids as $spotify_id) {
 
 	$artist   = $json->artists[0]->name;
 	$title    = $json->name;
-	$duration =  $json->duration_ms;
+	$duration =  round($json->duration_ms/1000);
 
-	echo "Got spotify info for $artist - $title. Attempting vk.com download...\n";
+	echo "Got spotify info for $artist - $title ({$duration}sec). Attempting vk.com download...\n";
 
 
-	if (count($duration) == 2) {
-		$duration = $duration[0] * 60 + $duration[1];
-	} else {
-		$duration = $duration[0] * 3600 + $duration[1] * 60 + $duration[2];
-	}
 	find_and_download($spotify_id, $artist, $title, $duration, $access_token);
 }

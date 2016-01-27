@@ -119,16 +119,26 @@ function find_and_download ($spotify_id, $artist, $title, $duration, $access_tok
 $access_token = trim(file_get_contents(__DIR__.'/access_token.txt'));
 preg_match_all('/([a-z0-9]{22})/Uims', file_get_contents('spotify.txt'), $spotify_ids);
 $spotify_ids = $spotify_ids[1];
+
+echo "Spotify-to-vk started. Found " . count($spotify_ids) . " track(s).\n";
+
 foreach ($spotify_ids as $spotify_id) {
-	preg_match(
-		"/owner-action\">(.*)<.*spotify:track:$spotify_id.*-name-name\">(.*)<.*duration\">(.*)</Uims",
-		file_get_contents("https://open.spotify.com/track/$spotify_id"),
-		$m
-	);
-	$artist   = $m[1];
-	$title    = $m[2];
-	$duration = explode(':', $m[3]);
-	unset($m);
+
+	$url =  "https://api.spotify.com/v1/tracks/$spotify_id";
+	$json = json_decode(@file_get_contents($url));
+
+	if($json === NULL){
+		echo "Unable to get info from Spotify for track: " . $url . "\n";
+		continue;
+	}
+
+	$artist   = $json->artists[0]->name;
+	$title    = $json->name;
+	$duration =  $json->duration_ms;
+
+	echo "Got spotify info for $artist - $title. Attempting vk.com download...\n";
+
+
 	if (count($duration) == 2) {
 		$duration = $duration[0] * 60 + $duration[1];
 	} else {
